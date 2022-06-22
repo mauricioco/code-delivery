@@ -1,0 +1,10 @@
+version: '3.4'
+
+services:
+  codedelivery-simulator:
+    image: projectsdocker
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - 3000:3000
