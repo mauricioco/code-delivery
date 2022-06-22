@@ -20,7 +20,7 @@ type Route struct {
 
 type Position struct {
 	Lat  float64 `json:"lat"`
-	Long float64 `json:"lon"`
+	Long float64 `json:"long"`
 }
 
 type PartialRoutePosition struct {
@@ -28,6 +28,10 @@ type PartialRoutePosition struct {
 	ClientID string    `json:"clientId"`
 	Position []float64 `json:"position"`
 	Finished bool      `json:"finished"`
+}
+
+func NewRoute() *Route {
+	return &Route{}
 }
 
 func (r *Route) LoadPositions() error {
@@ -48,7 +52,7 @@ func (r *Route) LoadPositions() error {
 		if err != nil {
 			return err
 		}
-		lon, err := strconv.ParseFloat(data[0], 64)
+		lon, err := strconv.ParseFloat(data[1], 64)
 		if err != nil {
 			return err
 		}
