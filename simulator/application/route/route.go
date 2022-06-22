@@ -19,8 +19,8 @@ type Route struct {
 }
 
 type Position struct {
-	Lat float64 `json:"lat"`
-	Lon float64 `json:"lon"`
+	Lat  float64 `json:"lat"`
+	Long float64 `json:"lon"`
 }
 
 type PartialRoutePosition struct {
@@ -53,8 +53,8 @@ func (r *Route) LoadPositions() error {
 			return err
 		}
 		r.Positions = append(r.Positions, Position{
-			Lat: lat,
-			Lon: lon,
+			Lat:  lat,
+			Long: lon,
 		})
 	}
 	return nil
@@ -69,7 +69,7 @@ func (r *Route) ExportJsonPositions() ([]string, error) {
 	for i, v := range r.Positions {
 		route.ID = r.ID
 		route.ClientID = r.ClientID
-		route.Position = []float64{v.Lat, v.Lon}
+		route.Position = []float64{v.Lat, v.Long}
 		route.Finished = false
 		if total-1 == i {
 			route.Finished = true
@@ -89,7 +89,7 @@ func (r *Route) PrintPositions() error {
 	}
 	fmt.Println("Route + r.ID")
 	for _, v := range r.Positions {
-		fmt.Printf("{ lat: %f, lon: %f }\n", v.Lat, v.Lon)
+		fmt.Printf("{ lat: %f, lon: %f }\n", v.Lat, v.Long)
 	}
 	return nil
 }
