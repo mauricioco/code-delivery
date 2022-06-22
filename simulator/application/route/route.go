@@ -2,6 +2,7 @@ package route
 
 import (
 	"bufio"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -12,14 +13,21 @@ import (
 )
 
 type Route struct {
-	ID        string
-	ClientID  string
-	Positions []Position
+	ID        string     `json:"routeId"`
+	ClientID  string     `json:"clientId"`
+	Positions []Position `json:"position"`
 }
 
 type Position struct {
-	Lat float64
-	Lon float64
+	Lat float64 `json:"lat"`
+	Lon float64 `json:"lon"`
+}
+
+type PartialRoutePosition struct {
+	ID       string    `json:"routeId"`
+	ClientID string    `json:"clientId"`
+	Position []float64 `json:"position"`
+	Finished bool      `json:"finished"`
 }
 
 func (r *Route) LoadPositions() error {
@@ -50,6 +58,29 @@ func (r *Route) LoadPositions() error {
 		})
 	}
 	return nil
+}
+
+func (r *Route) ExportJsonPositions() ([]string, error) {
+	var (
+		route  PartialRoutePosition // saves memory by storing the values in the same var every time.
+		result []string
+	)
+	total := len(r.Positions)
+	for i, v := range r.Positions {
+		route.ID = r.ID
+		route.ClientID = r.ClientID
+		route.Position = []float64{v.Lat, v.Lon}
+		route.Finished = false
+		if total-1 == i {
+			route.Finished = true
+		}
+		jsonRoute, err := json.Marshal(route)
+		if err != nil { // if inside a loop is not good performance-wise. But performance is not required right now.
+			return nil, err
+		}
+		result = append(result, string(jsonRoute))
+	}
+	return result, nil
 }
 
 func (r *Route) PrintPositions() error {
