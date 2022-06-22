@@ -1,15 +1,12 @@
-#build stage
-FROM golang:alpine AS builder
-RUN apk add --no-cache git
-WORKDIR /go/src/app
+#TODO multistage build! This build takes forever but it works for now...
+#run with docker-compose build
+FROM golang:1.18.3
+WORKDIR /go/src/
+ENV PATH="go/bin:${PATH}"
 COPY . .
+RUN ls
 RUN go get -d -v ./...
-RUN go build -o /go/bin/app -v ./...
+RUN go run main.go
 
-#final stage
-FROM alpine:latest
-RUN apk --no-cache add ca-certificates
-COPY --from=builder /go/bin/app /app
-ENTRYPOINT /app
-LABEL Name=codedelivery-simulator Version=0.0.1
-EXPOSE 3000
+#RUN apt-get update && \
+	#apt-get install build-essential librdkafka-dev -y
