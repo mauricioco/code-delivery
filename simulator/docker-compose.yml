@@ -1,0 +1,15 @@
+version: '3.4'
+
+services:
+  codedelivery-simulator:
+    image: simulator
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    # TODO: read more on volumes before using it
+    #volumes:
+      #- .:/go/src
+    ports:
+      - 3000:3000
+    extra_hosts:
+      - "host.docker.internal:172.17.0.1"
