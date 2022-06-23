@@ -1,31 +1,31 @@
-# Created by https://www.toptal.com/developers/gitignore/api/go
-# Edit at https://www.toptal.com/developers/gitignore?templates=go
+# Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode
+# Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode
 
-### Go ###
-# If you prefer the allow list template instead of the deny list, see community template:
-# https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
-#
-# Binaries for programs and plugins
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
+### VisualStudioCode ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+#!.vscode/launch.json #removing this for now...
+!.vscode/extensions.json
+!.vscode/*.code-snippets
 
-# Test binary, built with `go test -c`
-*.test
+# Local History for Visual Studio Code
+.history/
 
-# Output of the go coverage tool, specifically when used with LiteIDE
-*.out
+# Built Visual Studio Code Extensions
+*.vsix
 
-# Dependency directories (remove the comment below to include it)
-# vendor/
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history
+.ionide
 
-# Go workspace file
-go.work
+# Support for Project snippet scope
+.vscode/*.code-snippets
 
-### Go Patch ###
-/vendor/
-/Godeps/
+# Ignore code-workspaces
+*.code-workspace
 
-# End of https://www.toptal.com/developers/gitignore/api/go
+# End of https://www.toptal.com/developers/gitignore/api/visualstudiocode
+
+.vscode/launch.json
