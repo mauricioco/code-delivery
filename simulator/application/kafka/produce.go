@@ -16,7 +16,10 @@ func Produce(msg *gokafka.Message) {
 	producer := kafka.NewKafkaProducer()
 	route := NewRoute()
 	json.Unmarshal(msg.Value, &route)
-	route.LoadPositions()
+	err := route.LoadPositions()
+	if err != nil {
+		log.Println((err.Error()))
+	}
 	positions, err := route.ExportJsonPositions()
 	if err != nil {
 		log.Println((err.Error()))
