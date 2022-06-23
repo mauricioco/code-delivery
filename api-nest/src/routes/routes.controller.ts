@@ -8,11 +8,12 @@ import {
   Delete,
   OnModuleInit,
   Inject,
+  HttpCode,
 } from '@nestjs/common';
 import { RoutesService } from './routes.service';
 import { CreateRouteDto } from './dto/create-route.dto';
 import { UpdateRouteDto } from './dto/update-route.dto';
-import { ClientKafka } from '@nestjs/microservices';
+import { ClientKafka, MessagePattern, Payload } from '@nestjs/microservices';
 import { Producer } from '@nestjs/microservices/external/kafka.interface';
 
 @Controller('api/routes')
@@ -55,6 +56,7 @@ export class RoutesController implements OnModuleInit {
   }
 
   @Post(':id/start')
+  @HttpCode(200)
   startDelivery(@Param('id') id: string) {
     this.kafkaProducer.send({
       topic: 'route.new-direction',
@@ -65,5 +67,23 @@ export class RoutesController implements OnModuleInit {
         },
       ],
     });
+  }
+
+  @MessagePattern('route.new-position')
+  consumeNewPosition(
+    @Payload()
+    message: {
+      value: {
+        routeId: string;
+        clientId: string;
+        position: [number, number];
+        finished: boolean;
+      };
+    },
+  ) {
+    // TODO: Just log while there's no frontend
+    console.log(
+      `New route position: ${message.value.position[0]}, ${message.value.position[1]}`,
+    );
   }
 }
