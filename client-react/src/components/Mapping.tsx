@@ -5,6 +5,8 @@ import { getCurrentPosition } from '../util/geoloaction';
 import { makeCarIcon, makeMarkerIcon, Map } from '../util/map';
 import { Route } from '../util/models';
 import { sample, shuffle } from 'lodash';
+import { RouteExistsError } from '../errors/route-exists.error';
+import { useSnackbar } from 'notistack';
 
 const EMPTY_STRING = '';
 const API_URL = process.env.REACT_APP_API_URL;
@@ -29,7 +31,7 @@ export const Mapping: FunctionComponent = (props) => {
   const [routes, setRoutes] = useState<Route[]>([]);
   const [routeIdSelected, setRouteIdSelected] = useState<string>(EMPTY_STRING);
   const mapRef = useRef<Map>();
-
+  const {enqueueSnackbar} = useSnackbar();
 
   useEffect(() => {
     fetch(`${API_URL}/routes`)
@@ -56,17 +58,25 @@ export const Mapping: FunctionComponent = (props) => {
     const route = routes.find(r => r._id === routeIdSelected);
     const color = sample(shuffle(colors));
 
-    mapRef.current?.addRoute(routeIdSelected, {
-      currentMarkerOptions: {
-        position: route?.startPosition,
-        icon: makeCarIcon(color!),
-      },
-      endMarkerOptions: {
-        position: route?.endPosition,
-        icon: makeMarkerIcon(color!),
-      },
-    });
-  }, [routeIdSelected, routes]);
+    try {
+      mapRef.current?.addRoute(routeIdSelected, {
+        currentMarkerOptions: {
+          position: route?.startPosition,
+          icon: makeCarIcon(color!),
+        },
+        endMarkerOptions: {
+          position: route?.endPosition,
+          icon: makeMarkerIcon(color!),
+        },
+      });
+    } catch (error) {
+      if (error instanceof RouteExistsError) {
+        enqueueSnackbar(`${route?.title} já adicionado. Por favor, espere finalizar.`, {
+          variant: 'error',
+        })
+      }
+    }
+  }, [routeIdSelected, routes, enqueueSnackbar]);
 
   return (
     <Grid container style={{width: '100%', height: '100%'}}>
