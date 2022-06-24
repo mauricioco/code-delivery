@@ -30,7 +30,7 @@ export const Mapping = (props: Props) => {
               <em>Selecione uma corrida</em>
             </MenuItem>
             {routes.map((route, key) => (
-              <MenuItem key={key} value={route.id}>
+              <MenuItem key={key} value={route._id}>
                 {route.title}
               </MenuItem>
             ))}
