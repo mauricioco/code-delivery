@@ -8,9 +8,11 @@ import { sample, shuffle } from 'lodash';
 import { RouteExistsError } from '../errors/route-exists.error';
 import { useSnackbar } from 'notistack';
 import { Navbar } from './Navbar';
+import { io, Socket } from 'socket.io-client'
 
 const EMPTY_STRING = '';
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL as string;
+const SOCKET_URL = process.env.REACT_APP_SOCKET_URL as string;
 
 const googleMApsLoader = new Loader(process.env.REACT_APP_GOOGLE_API_KEY);
 
@@ -51,7 +53,14 @@ export const Mapping: FunctionComponent = (props) => {
   const [routes, setRoutes] = useState<Route[]>([]);
   const [routeIdSelected, setRouteIdSelected] = useState<string>(EMPTY_STRING);
   const mapRef = useRef<Map>();
+  const socketIORef = useRef<Socket>();
   const {enqueueSnackbar} = useSnackbar();
+
+  useEffect(() => {
+    socketIORef.current = io(SOCKET_URL);
+    socketIORef.current.on('connect', () => console.log('Websocket conectado!'));
+    socketIORef.current.on('connect_error', (error) => console.log(`Erro ao conectar ao Websocket... ${error.message}`));
+  }, [socketIORef]);
 
   useEffect(() => {
     fetch(`${API_URL}/routes`)
