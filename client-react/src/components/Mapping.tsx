@@ -7,6 +7,7 @@ import { Route } from '../util/models';
 import { sample, shuffle } from 'lodash';
 import { RouteExistsError } from '../errors/route-exists.error';
 import { useSnackbar } from 'notistack';
+import { Navbar } from './Navbar';
 
 const EMPTY_STRING = '';
 const API_URL = process.env.REACT_APP_API_URL;
@@ -100,6 +101,7 @@ export const Mapping: FunctionComponent = (props) => {
   return (
     <Grid container className={classes.root}>
       <Grid item xs={12} sm={3}>
+        <Navbar />
         <form onSubmit={startRoute} className={classes.form}>
           <Select 
             fullWidth
