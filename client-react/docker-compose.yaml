@@ -8,3 +8,5 @@ services:
       - 3000:3000
     volumes:
       - .:/home/node/app
+    environment:
+      - WATCHPACK_POLLING=true
