@@ -1,4 +1,4 @@
-import { Button, Grid, MenuItem, Select } from '@material-ui/core';
+import { Button, Grid, makeStyles, MenuItem, Select } from '@material-ui/core';
 import { Loader } from 'google-maps';
 import { FormEvent, FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 import { getCurrentPosition } from '../util/geoloaction';
@@ -27,7 +27,26 @@ const colors = [
   '#827717',
 ];
 
+const useStyles = makeStyles({
+  root: {
+    width: '100%',
+    height: '100%',
+  },
+  form: {
+    margin: '16px',
+  },
+  btnSubmitWrapper: {
+    textAlign: 'center',
+    marginTop: '8px',
+  },
+  map: {
+    width: '100%',
+    height: '100%',
+  },
+})
+
 export const Mapping: FunctionComponent = (props) => {
+  const classes = useStyles();
   const [routes, setRoutes] = useState<Route[]>([]);
   const [routeIdSelected, setRouteIdSelected] = useState<string>(EMPTY_STRING);
   const mapRef = useRef<Map>();
@@ -79,9 +98,9 @@ export const Mapping: FunctionComponent = (props) => {
   }, [routeIdSelected, routes, enqueueSnackbar]);
 
   return (
-    <Grid container style={{width: '100%', height: '100%'}}>
+    <Grid container className={classes.root}>
       <Grid item xs={12} sm={3}>
-        <form onSubmit={startRoute}>
+        <form onSubmit={startRoute} className={classes.form}>
           <Select 
             fullWidth
             displayEmpty
@@ -97,11 +116,13 @@ export const Mapping: FunctionComponent = (props) => {
               </MenuItem>
             ))}
           </Select>
-          <Button type="submit" color="primary" variant="contained">Iniciar uma corrida</Button>
+          <div className={classes.btnSubmitWrapper}>
+            <Button type="submit" color="primary" variant="contained">Iniciar uma corrida</Button>
+          </div>
         </form>
       </Grid>
       <Grid item xs={12} sm={9}>
-        <div id="map" style={{width: '100%', height: '100%'}}></div>
+        <div id="map" className={classes.map} />
       </Grid>
     </Grid>
   );
