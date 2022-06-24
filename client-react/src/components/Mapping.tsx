@@ -39,7 +39,7 @@ export const Mapping = (props: Props) => {
 
   const startRoute = useCallback((event: FormEvent) => {
     event.preventDefault();
-    const route = routes.find(route => route._id === routeIdSelected);
+    const route = routes.find(r => r._id === routeIdSelected);
     mapRef.current?.addRoute(routeIdSelected, {
       currentMarkerOptions: {
         position: route?.startPosition,
