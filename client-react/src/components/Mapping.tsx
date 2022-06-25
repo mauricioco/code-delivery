@@ -56,19 +56,33 @@ export const Mapping: FunctionComponent = (props) => {
   const socketIORef = useRef<Socket>();
   const {enqueueSnackbar} = useSnackbar();
 
+  const finishRoute = useCallback((route: Route) => {
+    enqueueSnackbar(`${route.title} finalizou!`, { variant: 'success' });
+    mapRef.current?.removeRoute(route._id);
+  }, [enqueueSnackbar]);
+
   useEffect(() => {
-    socketIORef.current = io(SOCKET_URL);
-    socketIORef.current.on('connect', () => console.log('Websocket conectado!'));
-    socketIORef.current.on('connect_error', (error) => console.log(`Erro ao conectar ao Websocket... ${error.message}`));
-    socketIORef.current?.on('new-position',
-      (data: {
-        routeId: string; 
-        position: [number, number],
-        finished: boolean
-      } ) => {
-        mapRef.current?.moveCurrentMarker(data.routeId, {lat: data.position[0], lng: data.position[1]});
-    });
-  }, [socketIORef]);
+    if (!socketIORef.current?.connected) {
+      socketIORef.current = io(SOCKET_URL);
+      socketIORef.current.on('connect', () => console.log('Websocket conectado!'));
+      socketIORef.current.on('connect_error', (error) => console.log(`Erro ao conectar ao Websocket... ${error.message}`));
+    }
+    const newPositionHandler = (data: {
+      routeId: string; 
+      position: [number, number],
+      finished: boolean
+    }) => {
+      mapRef.current?.moveCurrentMarker(data.routeId, {lat: data.position[0], lng: data.position[1]});      
+      if (data.finished) {
+        const route = routes.find((r) => r._id === data.routeId) as Route;
+        finishRoute(route);
+      }
+    };
+    socketIORef.current?.on('new-position', newPositionHandler);
+    return () => {
+      socketIORef.current?.off('new-position', newPositionHandler);
+    }
+  }, [finishRoute, routes, routeIdSelected]);
 
   useEffect(() => {
     fetch(`${API_URL}/routes`)
