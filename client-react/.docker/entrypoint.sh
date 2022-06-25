@@ -4,6 +4,6 @@ if [ ! -f ".env" ]; then
   cp .env.example .env
 fi
 
-npm install
+npm install --force
 
 npm run start
