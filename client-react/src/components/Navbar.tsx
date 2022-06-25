@@ -1,5 +1,4 @@
-import { AppBar, Toolbar, Typography } from "@material-ui/core";
-import { IconButton } from "@mui/material";
+import { AppBar, IconButton, Toolbar, Typography } from "@material-ui/core";
 import { FunctionComponent } from "react";
 import DriverIcon from '@material-ui/icons/DriveEta';
 

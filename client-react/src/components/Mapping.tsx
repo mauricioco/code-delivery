@@ -8,9 +8,11 @@ import { sample, shuffle } from 'lodash';
 import { RouteExistsError } from '../errors/route-exists.error';
 import { useSnackbar } from 'notistack';
 import { Navbar } from './Navbar';
+import { io, Socket } from 'socket.io-client'
 
 const EMPTY_STRING = '';
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL as string;
+const SOCKET_URL = process.env.REACT_APP_SOCKET_URL as string;
 
 const googleMApsLoader = new Loader(process.env.REACT_APP_GOOGLE_API_KEY);
 
@@ -51,7 +53,36 @@ export const Mapping: FunctionComponent = (props) => {
   const [routes, setRoutes] = useState<Route[]>([]);
   const [routeIdSelected, setRouteIdSelected] = useState<string>(EMPTY_STRING);
   const mapRef = useRef<Map>();
+  const socketIORef = useRef<Socket>();
   const {enqueueSnackbar} = useSnackbar();
+
+  const finishRoute = useCallback((route: Route) => {
+    enqueueSnackbar(`${route.title} finalizou!`, { variant: 'success' });
+    mapRef.current?.removeRoute(route._id);
+  }, [enqueueSnackbar]);
+
+  useEffect(() => {
+    if (!socketIORef.current?.connected) {
+      socketIORef.current = io(SOCKET_URL);
+      socketIORef.current.on('connect', () => console.log('Websocket conectado!'));
+      socketIORef.current.on('connect_error', (error) => console.log(`Erro ao conectar ao Websocket... ${error.message}`));
+    }
+    const newPositionHandler = (data: {
+      routeId: string; 
+      position: [number, number],
+      finished: boolean
+    }) => {
+      mapRef.current?.moveCurrentMarker(data.routeId, {lat: data.position[0], lng: data.position[1]});      
+      if (data.finished) {
+        const route = routes.find((r) => r._id === data.routeId) as Route;
+        finishRoute(route);
+      }
+    };
+    socketIORef.current?.on('new-position', newPositionHandler);
+    return () => {
+      socketIORef.current?.off('new-position', newPositionHandler);
+    }
+  }, [finishRoute, routes, routeIdSelected]);
 
   useEffect(() => {
     fetch(`${API_URL}/routes`)
@@ -88,6 +119,9 @@ export const Mapping: FunctionComponent = (props) => {
           position: route?.endPosition,
           icon: makeMarkerIcon(color!),
         },
+      });
+      socketIORef.current?.emit('new-direction', {
+        routeId: routeIdSelected
       });
     } catch (error) {
       if (error instanceof RouteExistsError) {
