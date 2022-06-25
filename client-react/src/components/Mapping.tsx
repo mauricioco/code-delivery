@@ -60,6 +60,14 @@ export const Mapping: FunctionComponent = (props) => {
     socketIORef.current = io(SOCKET_URL);
     socketIORef.current.on('connect', () => console.log('Websocket conectado!'));
     socketIORef.current.on('connect_error', (error) => console.log(`Erro ao conectar ao Websocket... ${error.message}`));
+    socketIORef.current?.on('new-position',
+      (data: {
+        routeId: string; 
+        position: [number, number],
+        finished: boolean
+      } ) => {
+        mapRef.current?.moveCurrentMarker(data.routeId, {lat: data.position[0], lng: data.position[1]});
+    });
   }, [socketIORef]);
 
   useEffect(() => {
@@ -97,6 +105,9 @@ export const Mapping: FunctionComponent = (props) => {
           position: route?.endPosition,
           icon: makeMarkerIcon(color!),
         },
+      });
+      socketIORef.current?.emit('new-direction', {
+        routeId: routeIdSelected
       });
     } catch (error) {
       if (error instanceof RouteExistsError) {
